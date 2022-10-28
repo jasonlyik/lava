@@ -1,0 +1,14 @@
+Original paper has simulator as backend for TENNLab framework
+
+Functions for interacting with TENNLab interface:
+- Load network: creating appropriate neurons and synapses and connecting them together, creation of any monitor structures
+- Apply spikes: create appropriate spike generators or spikes from TENNLab spike representation
+- Run: perform simulation on the loaded network and input spikes
+- Output count / output last fire / output vector: return info about output spikes or network or particular neuron. return count of spikes, time of last spike, or vector containing times of all spikes
+- Clear activity: current network remain loaded, but reset network to its initial state
+- Clear: removes network and associated activity from simulator
+
+TODO:
+- figure out how to make recurrent connections in same process (need for random, shortest path)
+--> define recurrent connections via LIF1 -> Dense -> LIF1
+- read how to connect dataset/spiking input into the sim
