@@ -12,3 +12,5 @@ TODO:
 - figure out how to make recurrent connections in same process (need for random, shortest path)
 --> define recurrent connections via LIF1 -> Dense -> LIF1
 - read how to connect dataset/spiking input into the sim
+
+For paper: point about framework flexibility - for lava the network parameters must be set for the entire neuron population, and it is ugly to break the network up into individual neurons because of the process model of neuron - connect - neuron
