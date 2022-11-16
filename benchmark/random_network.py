@@ -22,6 +22,10 @@ Number of neurons: 100, 200, 500, 1000
 Average over 5 evaluations. Cap test at 15 minutes.
 '''
 
+# TODO: verify code correctness.
+# TODO: appears that running many trials in a row seems to degrade performance.
+# --> should try to run experiments separately/from clean slate each time for most accurate results
+
 from lava.proc.lif.process import LIF
 from lava.proc.dense.process import Dense
 from lava.proc.monitor.process import Monitor
@@ -70,7 +74,7 @@ def random(N: int, d: float, num_steps: int):
     lif.s_out.connect(dense.s_in)
     dense.a_out.connect(lif.a_in)
 
-    spike_gen = SpikeGenerator(shape=(lif.a_in.shape[0], )) # sends out 10 1's, rest 0's
+    spike_gen = SpikeGenerator(shape=(lif.a_in.shape[0], ), num_spikes=10) # sends out 10 1's, rest 0's
     x = 30 * np.random.random_sample((N,)) - 15
     dense_input = Dense(weights=np.diag(x)) # determines input weight
     spike_gen.s_out.connect(dense_input.s_in)
@@ -100,8 +104,10 @@ def random(N: int, d: float, num_steps: int):
 
 
 if __name__ == '__main__':
-    N_list = [100, 200, 500, 1000]
-    d_list = [0.1, 0.3, 0.5, 1.0]
+    # N_list = [100, 200, 500, 1000]
+    # d_list = [0.1, 0.3, 0.5, 1.0]
+    N_list = [1000]
+    d_list = [0.1]
     num_steps = 1000
 
     num_evaluations = 5

@@ -19,21 +19,23 @@ class SpikeGenerator(AbstractProcess):
 	shape: tuple
 		defines the dimensionality of the generated spikes per timestep
 	"""
-	def __init__(self, shape: tuple) -> None:
+	def __init__(self, shape: tuple, num_spikes: int) -> None:
 		super().__init__()
 		self.s_out = OutPort(shape=shape)
+		self.num_spikes = Var(shape=(1,), init=num_spikes)
 
 @implements(proc=SpikeGenerator, protocol=LoihiProtocol)
 @requires(CPU)
 class PySpikeGeneratorModel(PyLoihiProcessModel):
     """Spike Generator process model."""
     s_out: PyOutPort = LavaPyType(PyOutPort.VEC_DENSE, float)
+    num_spikes: int = LavaPyType(int, int)
 
     def run_spk(self) -> None:
     	# for random only want to send out 10 spikes
         spike_data = np.zeros(self.s_out.shape[0], dtype=int)
         counter = 0
-        while counter < 10:
+        while counter < self.num_spikes:
         	rand = np.random.randint(self.s_out.shape[0])
         	if spike_data[rand] != 0:
         		continue
