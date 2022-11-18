@@ -27,7 +27,7 @@ from lava.magma.core.run_configs import Loihi1SimCfg
 import numpy as np
 import time
 
-from spikegenerator import SpikeGenerator, PySpikeGeneratorModel
+# from spikegenerator import SpikeGenerator, PySpikeGeneratorModel
 from multiprocessor import Multiprocessor
 
 class FFNetworkBody(AbstractProcess):
