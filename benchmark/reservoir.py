@@ -96,17 +96,6 @@ class ReservoirBody(AbstractProcess):
         self.spikes_in = InPort(shape=(64,))
         self.spikes_out = OutPort(shape=(10,))
         
-        # TODO
-        # Up-level currents and voltages of LIF Processes
-        # for resetting (see at the end of the tutorial)
-        '''
-        self.lif1_u = Var(shape=(w0.shape[0],), init=0)
-        self.lif1_v = Var(shape=(w0.shape[0],), init=0)
-        self.lif2_u = Var(shape=(w1.shape[0],), init=0)
-        self.lif2_v = Var(shape=(w1.shape[0],), init=0)
-        self.oplif_u = Var(shape=(w2.shape[0],), init=0)
-        self.oplif_v = Var(shape=(w2.shape[0],), init=0)
-        '''
 
 @implements(ReservoirBody)
 @requires(CPU)
@@ -116,7 +105,7 @@ class PyReservoirBodyModel(AbstractSubProcessModel):
         dim = proc.dim.init
 
         self.input_dense = Dense(weights=np.identity(64))
-        self.input_neurons = LIF(shape=(64,), vth=190) # TODO
+        self.input_neurons = LIF(shape=(64,), vth=np.random.randint(16)) # TODO
         
         # 0.3 prob for connection from input to reservoir
         self.input_reservoir_dense = Dense(weights=generate_weights(0.3, 64, cube))
@@ -141,13 +130,16 @@ class PyReservoirBodyModel(AbstractSubProcessModel):
 
         self.reservoir_output_dense = Dense(weights=generate_weights(0.3, cube, 10))
         self.output_neurons = LIF(shape=(10,), vth=np.random.randint(16))         
-        # # Create aliases of SubProcess variables
-        # proc.lif1_u.alias(self.lif1.u)
-        # proc.lif1_v.alias(self.lif1.v)
-        # proc.lif2_u.alias(self.lif2.u)
-        # proc.lif2_v.alias(self.lif2.v)
-        # proc.oplif_u.alias(self.output_lif.u)
-        # proc.oplif_v.alias(self.output_lif.v)
+        
+        proc.spikes_in.connect(self.input_dense.s_in)
+        self.input_dense.a_out.connect(self.input_neurons.a_in)
+        self.input_neurons.s_out.connect(self.input_reservoir_dense.s_in)
+        self.input_reservoir_dense.a_out.connect(self.reservoir_neurons.a_in) # input layer to reservoir
+        self.reservoir_neurons.s_out.connect(self.reservoir_dense.s_in)
+        self.reservoir_dense.a_out.connect(self.reservoir_neurons.a_in) # reservoir to reservoir
+        self.reservoir_neurons.s_out.connect(self.reservoir_output_dense.s_in)
+        self.reservoir_output_dense.a_out.connect(self.output_neurons.a_in)
+        self.output_neurons.s_out.connect(proc.spikes_out)
 
 class Classifier(AbstractProcess):
     """Process to gather spikes from 10 output LIF neurons and interpret the
@@ -164,3 +156,120 @@ class Classifier(AbstractProcess):
         self.num_steps_per_image = Var(shape=(1,), init=128)
         self.pred_labels = Var(shape=(n_img,))
         self.gt_labels = Var(shape=(n_img,))
+
+@implements(proc=Classifier, protocol=LoihiProtocol)
+@requires(CPU)
+class PyClassifierModel(PyLoihiProcessModel):
+    label_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, int, precision=32)
+    spikes_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, bool, precision=1)
+    num_images: int = LavaPyType(int, int, precision=32)
+    spikes_accum: np.ndarray = LavaPyType(np.ndarray, np.int32, precision=32)
+    num_steps_per_image: int = LavaPyType(int, int, precision=32)
+    pred_labels: np.ndarray = LavaPyType(np.ndarray, int, precision=32)
+    gt_labels: np.ndarray = LavaPyType(np.ndarray, int, precision=32)
+        
+    def __init__(self, proc_params):
+        super().__init__(proc_params=proc_params)
+        self.current_img_id = 0
+
+    def post_guard(self):
+        """Guard function for PostManagement phase.
+        """
+        if self.time_step % self.num_steps_per_image == 0 and \
+                self.time_step > 1:
+            return True
+        return False
+
+    def run_post_mgmt(self):
+        """Post-Management phase: executed only when guard function above 
+        returns True.
+        """
+        gt_label = self.label_in.recv()
+        pred_label = np.argmax(self.spikes_accum)
+        self.gt_labels[self.current_img_id] = gt_label
+        self.pred_labels[self.current_img_id] = pred_label
+        self.current_img_id += 1
+        self.spikes_accum = np.zeros_like(self.spikes_accum)
+
+    def run_spk(self):
+        """Spiking phase: executed unconditionally at every time-step
+        """
+        spk_in = self.spikes_in.recv()
+        self.spikes_accum = self.spikes_accum + spk_in
+
+
+def reservoir_network(dim: int):
+    sim_time = 0
+
+    # todo: may tweak these to get experiment running
+    num_images = 25
+    num_steps_per_image = 128
+
+    spike_input = SpikeInput(vth=190,
+                             num_images=num_images,
+                             num_steps_per_image=num_steps_per_image) 
+    reservoir = ReservoirBody(dim)
+    classifier = Classifier(num_images=num_images)
+
+    spike_input.spikes_out.connect(reservoir.spikes_in)
+    reservoir.spikes_out.connect(classifier.spikes_in)
+    spike_input.label_out.connect(classifier.label_in)
+
+    print("Starting eval")
+    start = time.process_time()
+
+    for img_id in range(num_images):
+        print(f"\rCurrent image: {img_id+1}", end="")
+
+        reservoir.run(
+            condition=RunSteps(num_steps=num_steps_per_image),
+            run_cfg=Loihi1SimCfg(select_sub_proc_model=True,
+                                 select_tag='fixed_pt'))
+
+    # Gather ground truth and predictions before stopping exec
+    ground_truth = classifier.gt_labels.get().astype(np.int32)
+    predictions = classifier.pred_labels.get().astype(np.int32)
+
+    # Stop the execution
+    reservoir.stop()
+    sim_time = time.process_time() - start
+    
+    accuracy = np.sum(ground_truth==predictions)/ground_truth.size * 100
+
+    print(f"\nGround truth: {ground_truth}\n"
+          f"Predictions : {predictions}\n"
+          f"Accuracy    : {accuracy}")
+
+    print("Finish eval")
+
+    return sim_time
+
+if __name__ == '__main__':
+    dims = [3, 7, 9, 10]
+    num_evaluations = 5
+
+    for dim in dims:
+        print("Beginning experiment dim =", dim)
+        times = []
+
+        for trial in range(num_evaluations):
+            mp = Multiprocessor(timeout=900, default_ret=0)
+            mp.run(reservoir_network, dim)
+            sim_time = mp.wait()
+            # sim_time = reservoir_network(dim)
+            
+            print("Evaluation", trial)
+            if sim_time != 0:
+                times.append(sim_time)
+            else:
+                print("failed to complete in time")
+
+        if len(times) > 0:
+            avg_time = sum(times) / len(times)
+        else:
+            avg_time = -1
+
+        print("Completed experiment size =", size)
+        print("times", times)
+        print("avg_time")
+        print(avg_time)
