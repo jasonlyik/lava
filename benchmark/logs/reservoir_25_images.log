@@ -1,0 +1,40 @@
+Beginning experiment dim = 3
+Evaluation 0
+Evaluation 1
+Evaluation 2
+Evaluation 3
+Evaluation 4
+Completed experiment dim = 3
+times [0.131843452, 0.119568335, 0.119575521, 0.118016581, 0.121662262]
+avg_time
+0.1221332302
+Beginning experiment dim = 7
+Evaluation 0
+Evaluation 1
+Evaluation 2
+Evaluation 3
+Evaluation 4
+Completed experiment dim = 7
+times [0.3405742, 0.341404921, 0.337595004, 0.338435784, 0.339808575]
+avg_time
+0.3395636968
+Beginning experiment dim = 9
+Evaluation 0
+Evaluation 1
+Evaluation 2
+Evaluation 3
+Evaluation 4
+Completed experiment dim = 9
+times [0.9635255659999999, 0.96089491, 0.974396583, 0.971507408, 0.975736517]
+avg_time
+0.9692121967999998
+Beginning experiment dim = 10
+Evaluation 0
+Evaluation 1
+Evaluation 2
+Evaluation 3
+Evaluation 4
+Completed experiment dim = 10
+times [1.640113342, 1.641225296, 1.6552772, 1.655801267, 1.661185521]
+avg_time
+1.6507205252

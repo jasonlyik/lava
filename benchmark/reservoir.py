@@ -202,7 +202,7 @@ def reservoir_network(dim: int):
     sim_time = 0
 
     # todo: may tweak these to get experiment running
-    num_images = 25
+    num_images = 1000
     num_steps_per_image = 128
 
     spike_input = SpikeInput(vth=190,
@@ -215,11 +215,11 @@ def reservoir_network(dim: int):
     reservoir.spikes_out.connect(classifier.spikes_in)
     spike_input.label_out.connect(classifier.label_in)
 
-    print("Starting eval")
+    # print("Starting eval")
     start = time.process_time()
 
     for img_id in range(num_images):
-        print(f"\rCurrent image: {img_id+1}", end="")
+        # print(f"\rCurrent image: {img_id+1}", end="")
 
         reservoir.run(
             condition=RunSteps(num_steps=num_steps_per_image),
@@ -234,13 +234,13 @@ def reservoir_network(dim: int):
     reservoir.stop()
     sim_time = time.process_time() - start
     
-    accuracy = np.sum(ground_truth==predictions)/ground_truth.size * 100
+    # accuracy = np.sum(ground_truth==predictions)/ground_truth.size * 100
 
-    print(f"\nGround truth: {ground_truth}\n"
-          f"Predictions : {predictions}\n"
-          f"Accuracy    : {accuracy}")
+    # print(f"\nGround truth: {ground_truth}\n"
+    #       f"Predictions : {predictions}\n"
+    #       f"Accuracy    : {accuracy}")
 
-    print("Finish eval")
+    # print("Finish eval")
 
     return sim_time
 
@@ -269,7 +269,7 @@ if __name__ == '__main__':
         else:
             avg_time = -1
 
-        print("Completed experiment size =", size)
+        print("Completed experiment dim =", dim)
         print("times", times)
         print("avg_time")
         print(avg_time)
