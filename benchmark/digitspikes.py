@@ -22,6 +22,12 @@ from lava.magma.core.resources import CPU
 # Import decorators
 from lava.magma.core.decorator import implements, requires
 
+'''
+the spike input takes input vth, num_images, num_steps_per_image
+for num_steps_per_image = 128, if we want max spikes = 10 then every 12 steps should spike for highest input feature
+--> digits dataset input features are 0..16, 16*12 = 192, so vth threshold can be 190
+'''
+
 class DigitsDataset:
     def __init__(self):
         test = genfromtxt('optdigits/optdigits.tes', delimiter=',')
