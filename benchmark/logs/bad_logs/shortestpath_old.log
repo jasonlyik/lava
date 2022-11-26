@@ -1,0 +1,11 @@
+Beginning experiment size = 500
+Evaluation 0
+Evaluation 1
+Evaluation 2
+Evaluation 3
+Evaluation 4
+Completed experiment size = 500
+times [0.075742943, 0.072488456, 0.071051408, 0.07297263600000001, 0.071939343]
+avg_time
+0.07283895719999998
+Beginning experiment size = 5000

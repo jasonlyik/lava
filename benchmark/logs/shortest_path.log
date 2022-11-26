@@ -1,0 +1,90 @@
+Beginning experiment size = 500
+graph generated, num edges 13998
+Starting eval
+spiking 196
+Finish eval, steps_to_finish = 7
+Evaluation 0
+graph generated, num edges 14198
+Starting eval
+spiking 195
+Finish eval, steps_to_finish = 6
+Evaluation 1
+graph generated, num edges 13935
+Starting eval
+spiking 128
+Finish eval, steps_to_finish = 7
+Evaluation 2
+graph generated, num edges 13936
+Starting eval
+spiking 133
+Finish eval, steps_to_finish = 7
+Evaluation 3
+graph generated, num edges 14233
+Starting eval
+spiking 439
+Finish eval, steps_to_finish = 7
+Evaluation 4
+Completed experiment size = 500
+times [1.2611162662506104, 1.705991268157959, 1.8518774509429932, 1.4891774654388428, 1.5375776290893555]
+avg_time
+1.569148015975952
+Beginning experiment size = 5000
+graph generated, num edges 157193
+Starting eval
+spiking 2597
+Finish eval, steps_to_finish = 7
+Evaluation 0
+graph generated, num edges 157574
+Starting eval
+spiking 1777
+Finish eval, steps_to_finish = 7
+Evaluation 1
+graph generated, num edges 156928
+Starting eval
+spiking 2323
+Finish eval, steps_to_finish = 7
+Evaluation 2
+graph generated, num edges 157721
+Starting eval
+spiking 3300
+Finish eval, steps_to_finish = 7
+Evaluation 3
+graph generated, num edges 158083
+Starting eval
+spiking 1864
+Finish eval, steps_to_finish = 6
+Evaluation 4
+Completed experiment size = 5000
+times [36.25025677680969, 37.533143758773804, 37.53638291358948, 39.73975706100464, 34.273016929626465]
+avg_time
+37.06651148796082
+Beginning experiment size = 10000
+graph generated, num edges 317123
+Starting eval
+spiking 1376
+Finish eval, steps_to_finish = 7
+Evaluation 0
+graph generated, num edges 317658
+Starting eval
+spiking 6929
+Finish eval, steps_to_finish = 7
+Evaluation 1
+graph generated, num edges 318475
+Starting eval
+spiking 6083
+Finish eval, steps_to_finish = 7
+Evaluation 2
+graph generated, num edges 316685
+Starting eval
+spiking 4376
+Finish eval, steps_to_finish = 7
+Evaluation 3
+graph generated, num edges 318414
+Starting eval
+spiking 549
+Finish eval, steps_to_finish = 7
+Evaluation 4
+Completed experiment size = 10000
+times [163.0774507522583, 166.16491889953613, 159.49085211753845, 159.47641921043396, 154.35921263694763]
+avg_time
+160.5137707233429
